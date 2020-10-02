@@ -1,0 +1,141 @@
+<%- include('partials/header') -%>
+
+    <div id="main">
+        <div class="container">
+            <% if(error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show">
+                  <strong>Error!</strong> <%= error %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+              <% if(success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show">
+                  <strong>Success!</strong> <%= success %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+            <% } %>
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="/home" class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home">&#8592; Go Back</a>
+                <a href="#" class="btn btn-outline-primary btn mb-3" data-toggle="tooltip" data-placement="right" title="time left"><span id="timeLeft" class="text-monospace text-light"></span></a>
+                
+            </div>
+            <div class="jumbotron bg-dark text-light">
+                <div class="row">
+                    <div class="col">
+                        <p class="h2 display-4">
+                            <span class="lead"></span><%= pollQuestion %>
+                        </p>
+                        <form class="pt-4" action="/vote/<%= pollID %>" method="post">
+                            <div class="row mt-3">
+                                <% options.forEach(option => { %> 
+                                    <div class="col-md-6">
+                                        <div class="form-group form-check ml-5">
+                                            <input class="form-check-input" type="radio" name="answer" id="<%= option.answer %>" value="<%= option.answer %>">
+                                            <label class="form-check-label" for="<%= option.answer %>">
+                                                <%= option.answer %>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <% }) %>
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            </div>
+                                <% if(isAllowedUser && !isVoted && isPollStarted && !isPollEnded) { %>
+                                    <button type="submit" class="btn btn-outline-success btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="Give your feedback">Submit</button>
+                                <% } else if(isVoted) { %> 
+                                    <button type="submit" class="btn btn-outline-info btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="You have voted Already!">Submit</button>
+                                <% } else if(!isPollStarted) { %>
+                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="Poll is not started yet">Submit</button>
+                                <% } else if(isPollEnded) { %>
+                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="poll is ended already">Submit</button>
+                                <% } else { %>
+                                    <button type="submit" class="btn btn-outline-secondary btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="bottom" title="You are not allowed to vote in this poll">Submit</button>
+                                <% } %>
+                                
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="jumbotron bg-dark text-light">
+                <div id="chartContainer"></div>
+            </div>
+        </div>
+    </div>
+
+<script src="https://js.pusher.com/7.0/pusher.min.js"></script>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<script>
+    var chartContainer = document.querySelector('#chartContainer')
+    var dataPoints = '<%- JSON.stringify(dataPoints) %>'
+    var pollQuestion = '<%- JSON.stringify(pollQuestion) %>'
+    var endAt = '<%- JSON.stringify(endAt) %>'
+    var renderAgain = false
+    dataPoints = JSON.parse(dataPoints)
+    pollQuestion = JSON.parse(pollQuestion)
+    endAt = new Date(JSON.parse(endAt))
+    const days = endAt.getDate() - new Date().getDate()
+    const hours = endAt.getHours() - new Date().getHours()
+    const min = Math.abs(endAt.getMinutes() - new Date().getMinutes())
+    document.getElementById('timeLeft').innerHTML = days + '-d '+ hours +'-h '+min+'-m'
+
+    setInterval(function() {
+        const days = endAt.getDate() - new Date().getDate()
+        const hours = endAt.getHours() - new Date().getHours()
+        const min = Math.abs(endAt.getMinutes() - new Date().getMinutes())
+        document.getElementById('timeLeft').innerHTML = days + '-d '+ hours +'-h '+min+'-m'
+
+    }, 1000 *  60 )
+
+    
+    if(chartContainer){
+        var chart = new CanvasJS.Chart('chartContainer', {
+            animationEnabled : true,
+            theme : 'dark2',
+            title : {
+                text : pollQuestion
+            },
+            axisY: {
+		        title: "Number of Votes"
+            },
+            data: [{        
+                type: "column",  
+                showInLegend: true, 
+                legendMarkerColor: "grey",
+                legendText : 'Options' ,
+                dataPoints
+            }]
+
+        }).render()
+
+        var pusher = new Pusher('4477a0a083a468f17deb' , {
+            cluster: 'ap2'
+        })
+
+        var channel = pusher.subscribe('poll');
+
+        channel.bind('vote', function(data) {
+            dataPoints = data.dataPoints
+            chart = new CanvasJS.Chart('chartContainer', {
+            theme : 'dark2',
+            title : {
+                text : pollQuestion
+            },
+            axisY: {
+		        title: "Number of Votes"
+            },
+            data: [{        
+                type: "column",  
+                showInLegend: true, 
+                legendMarkerColor: "grey",
+                legendText : 'Options' ,
+                dataPoints
+            }]
+
+        }).render()
+        })
+       
+    }
+    
+</script>
+
+<%- include('partials/footer') -%>

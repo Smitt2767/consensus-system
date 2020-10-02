@@ -1,0 +1,130 @@
+<%- include('partials/header') -%>
+    <header id="home-section">
+        <div class="dark-overlay">
+            <div class="home-inner container">
+                <% if(modal_error && modal_error.length > 0) { %>
+                    <div class="alert alert-danger alert-dismissible fade show">
+                      <strong>Error!</strong> <%= modal_error %>
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                  <% } %>
+                  <% if(modal_success && modal_success.length > 0) { %>
+                    <div class="alert alert-success alert-dismissible fade show">
+                      <strong>Success!</strong> <%= modal_success %>
+                      <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    </div>
+                  <% } %>
+                <div class="row">
+                    <div class="col-lg-8 d-none d-lg-block">
+                        <h1 class="display-4 mb-5">
+                            <strong>Welcome!</strong> create your account today and start,
+                        </h1>
+                        <div class="d-flex">
+                            <div class="pl-5 py-1">
+                                <i class="fa fa-check fa-2x bg-dark"></i>
+                            </div>
+                            <div class="pl-5 py-1"><p class="lead"><strong>Free</strong> to create account.</p></div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="pl-5 py-1">
+                                <i class="fa fa-check fa-2x bg-dark"></i>
+                            </div>
+                            <div class="pl-5 py-1"><p class="lead">Create Your <strong>POLL.</strong></p></div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="pl-5 py-1">
+                                <i class="fa fa-check fa-2x bg-dark"></i>
+                            </div>
+                            <div class="pl-5 py-1"><p class="lead">Invite the users to <strong>VOTE</strong> in your <strong>POLL.</strong></p></div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="pl-5 py-1">
+                                <i class="fa fa-check fa-2x bg-dark"></i>
+                            </div>
+                            <div class="pl-5 py-1"><p class="lead">Check polls <strong>RESULT.</strong></p></div>
+                        </div>
+                        <div class="d-flex">
+                            <div class="pl-5 py-1">
+                                <i class="fa fa-check fa-2x bg-dark"></i>
+                            </div>
+                            <div class="pl-5 py-1"><p class="lead">Give your <strong>FEEDBACK</strong> in other <strong>POLLS</strong></p></div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card bg-dark card-form">
+                            <div class="card-body">
+                                <h3 class="display-4 text-center">Signup</h3>
+                                <p class="text-danger">
+                                    <% if(error && error.length > 0) { %>
+                                        <span class="mt-2 text-monospace font-weight-bold"><%= error %></span>
+                                    <% } %>
+                                </p>
+                                <form action="/user/signup" method="post" autocomplete="off">
+                                    <div class="form-group">
+                                        <input type="text" name="username" class="form-control form-control-lg" placeholder="username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="email" name="email" class="form-control form-control-lg" placeholder="email" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="password" class="form-control form-control-lg" placeholder="password" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="password" name="c_password" class="form-control form-control-lg" placeholder="confirm password" required>
+                                    </div>
+                                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                    <input type="submit" value="Submit" class="btn btn-outline-light btn-lg btn-block">
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- explore section -->
+    <div id="explore-section">
+        <div class="container">
+            <div class="row">
+                <div class="col text-center py-4">
+                    <h1 class="display-4">Explore</h1>
+                    <p class="lead">Register your account & create your first public or private <strong>POLL</strong> & also give your valuable <strong>FEEDBACK</strong> to other polls created by your friends or someone else.</p>
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#contactModal">Contact Us</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+<div class="modal" id="contactModal">
+    <div class="modal-dialog">
+      <div class="modal-content bg-dark">
+        <div class="modal-header">
+          <h5 class="modal-title">Contact Us</h5>
+          <button class="close text-light" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form action="/contactUs" method="post" id="contactUs"> 
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" name="username" class="form-control" placeholder="eg. Jhon" required>
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" name="email" class="form-control" placeholder="eg. abc@gmail.com" required>
+            </div>
+            <div class="form-group">
+              <label for="messege">Messege</label>
+              <textarea class="form-control" name="message" required placeholder=" specify bugs/errors only"></textarea>
+            </div>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" form="contactUs" class="btn btn-primary btn-block">Submit</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<%- include('partials/footer') -%>

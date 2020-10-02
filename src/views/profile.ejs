@@ -1,0 +1,179 @@
+<%- include('partials/header') -%>
+    <div id="main">
+        <div class="container">
+            <% if(error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show">
+                  <strong>Error!</strong> <%= error %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+              <% if(success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show">
+                  <strong>Success!</strong> <%= success %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+            <!-- modal-1 -->
+            <div class="modal" id="editProfile">
+                <div class="modal-dialog ">
+                  <div class="modal-content bg-dark">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Edit Profile</h5>
+                      <button class="close text-light" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/user/profile?_csrf=<%= csrfToken %>" method="post" autocomplete="off" id="profile" enctype="multipart/form-data">
+                            
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span id="" class="input-group-text bg-secondary text-light">User Name</span>
+                                    </div>
+                                    <input type="text" class="form-control bg-dark text-light" name="first_name" value="<%= user.username.split(' ')[0] %>" placeholder="First Name">
+                                    <input type="text"class="form-control bg-dark text-light" name="last_name" value="<%= user.username.split(' ')[1] %>" placeholder="Last Name">
+                                </div>
+                            </div>
+                            <div class="form-group ">
+                                <div class="d-flex">
+                                    <select class="form-control bg-dark text-light w-25 mr-2" name="gender">
+                                        <option value="Male" select="<%= user.gender === 'Male' ? 'selected' : '' %>">Male</option>
+                                        <option value="Female" select="<%= user.gender === 'Female' ? 'selected' : '' %>">Female</option>
+                                    </select>
+                                    <select class="form-control bg-dark text-light w-50 mx-2" name="job_type">
+                                        <option value="CEO" select="<%= user.job_type === 'CEO' ? 'selected' : '' %>">CEO</option>
+                                        <option value="Manager" select="<%= user.job_type === 'Manager' ? 'selected' : '' %>">Manager</option>
+                                        <option value="Senior Developer" select="<%= user.job_type === 'Senior Developer' ? 'selected' : '' %>">Senior Developer</option>
+                                        <option value="Junior Developer" select="<%= user.job_type === 'Junior Developer' ? 'selected' : '' %>">Junior Developer</option>
+                                        <option value="Intern" select="<%= user.job_type === 'Intern' ? 'selected' : '' %>">Intern</option>
+                                        <option value="Other" select="<%= user.job_type === 'Other' ? 'selected' : '' %>">Other</option>
+                                    </select>    
+                                </div>   
+                            </div>
+                            <div class="form-group">
+                                <select class="form-control bg-dark text-light w-50" name="job_title">
+                                    <option value="App Developer" select="<%= user.job_title === 'App Developer' ? 'selected' : '' %>">App Developer</option>
+                                    <option value="Software Developer" select="<%= user.job_title === 'Software Developer' ? 'selected' : '' %>">App Developer</option>
+                                    <option value="Full-Stack Developer" select="<%= user.job_title === 'Full-Stack Developer' ? 'selected' : '' %>">Full-Stack Developer</option>
+                                    <option value="Frontend Developer" select="<%= user.job_title === 'Frontend Developer' ? 'selected' : '' %>">Frontend Developer</option>
+                                    <option value="Backend Developer" select="<%= user.job_title === 'Backend Developer' ? 'selected' : '' %>">Backend Developer</option>
+                                    <option value="Other" select="<%= user.job_title === 'Other' ? 'selected' : '' %>">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <div class="custom-file bg-dark">
+                                    <input type="file" class="custom-file-input bg-dark text-light" name="image" id="myfile">
+                                    <label for="myfile" class="custom-file-label bg-dark text-light" id="custom-file-label">Profile image</label>
+                                </div>
+                                
+                            </div>
+                            <div class="form-group">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text bg-secondary text-light">+91</span>
+                                    </div>
+                                    <input type="number" class="form-control bg-dark text-light" name="ph_no" placeholder="Phone Number" value="<%= user.ph_no ? user.ph_no : '' %>">
+                                    
+                                </div>
+                            </div>
+                            
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" form="profile" class="btn btn-primary btn-block">Submit</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- modal-2 -->
+              <div class="modal" id="changePassword">
+                <div class="modal-dialog">
+                  <div class="modal-content bg-dark text-light">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Change-Password</h5>
+                      <button class="close text-light" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="/user/change_password" method="post" id="changePasswordForm">
+                            <div class="form-group">
+                                <label for="old">Old Password</label>
+                                <input type="password" class="form-control bg-dark text-light" id="old" name="old_password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new1">New Password</label>
+                                <input type="password" class="form-control bg-dark text-light" id="new1" name="new_password1" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="new2">Confirm New Password</label>
+                                <input type="password" class="form-control bg-dark text-light" id="new2" name="new_password2" required>
+                            </div>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" form="changePasswordForm" class="btn btn-primary btn-block">Submit</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+            <!-- Profile -->
+
+            <div class="jumbotron bg-dark mt-3">
+                <div class="row">
+                    <div class="col-md-4 p-3 ">
+                        <div class="d-flex flex-column ">
+                            <div class="">
+                                <img src="<%= !user.image ? '/images/default-avatar.jpg' : '/user/avatar' %>" class="rounded profile bg-dark w-100" alt="">
+                            </div>
+                            <div class="">
+                                <button class="btn btn-outline-secondary mt-3 w-100" data-toggle="modal" data-target="#editProfile">Edit Profile</button>
+                            </div>
+                            
+                        </div>
+                    </div>
+                
+                    <div class="col-md-8 px-4 ">
+                        <hr class="d-none d-block-sm text-light">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h1 class="display-4"><%= user.username %></h1>
+                            </div>
+                            <div class="col-md-6 mt-4">
+                                <div class="d-flex justify-content-end align-items-center">
+                                        <i class="fa fa-envelope profile-icon text-secondary"></i>
+                                        <span class="text-secondary ml-2"><%= user.email %></span>
+                                </div>
+                                <div class="d-flex justify-content-end align-items-center">
+                                        <i class="fa fa-phone profile-icon text-secondary"></i>
+                                        <span class="text-secondary ml-2"><%= user.ph_no %></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-5">
+                            <p class="lead"><span class="text-secondary">Gender :- </span><%= user.gender %></p>
+                            <p class="lead"><span class="text-secondary">Job Type :- </span><%= user.job_type %></p>
+                            <p class="lead"><span class="text-secondary">Job Title :- </span><%= user.job_title %></p>
+                            <div class="">
+                                <button class="btn btn-outline-info mt-2 " data-toggle="modal" data-target="#changePassword">Change Password</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- end  -->
+        </div>
+
+    </div>
+
+    <script>
+        document.getElementById('myfile').addEventListener('change', function() {
+            const filename = this.value
+            document.getElementById('custom-file-label').innerHTML = filename.replace('C:\\fakepath\\' , '')
+        })
+    </script>
+
+<%- include('partials/footer') -%>

@@ -1,0 +1,142 @@
+<%- include('partials/header') -%>
+
+    <div id="main">
+        <div class="container">
+            <% if(error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show">
+                  <strong>Error!</strong> <%= error %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+              <% if(success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show">
+                  <strong>Success!</strong> <%= success %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+            <form action="/create_poll" method="post" autocomplete="off">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="pollQuestion" class="text-info lead">Enter Your Question </label>
+                            <input type="text" class="form-control bg-dark text-light lead" name="pollQuestion" id="pollQuestion" aria-describedby="help" placeholder="Question" required>
+                            <small class="foem-text text-secondary text-monospace" id="help">put ? symbol after your question</small>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <div class="form-group w-50 mr-2">
+                                <div class="input-group"> 
+                                    <input type="text"  placeholder="Starting Date" name="startAt" id="startAt" class="form-control bg-dark text-light lead datetimepicker">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-dark text-light"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group w-50 ">
+                                <div class="input-group"> 
+                                    <input type="text"  placeholder="Ending Date" name="endAt" id="endAt" class="form-control bg-dark text-light lead datetimepicker">
+                                    <div class="input-group-append">
+                                        <span class="input-group-text bg-dark text-light"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="d-flex justify-content-between">
+                                <button type="button" id="addOption" class="btn btn-outline-info btn-sm mb-2"><span class="lead">Add Option</span></button>
+                            <button type="button" id="deleteOption" class="btn btn-outline-danger btn-sm mb-2"><span class="lead">Delete Option</span></button>
+                            </div>
+                            <div class="" id="options" aria-describedby="optionsHelp"></div>
+                            <small class="foem-text text-secondary text-monospace" id="optionsHelp">If there is an empty options then it's avoided</small>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mt-3 py-3 px-5 text-left">
+                            <div class="bg-dark text-light mb-2 p-3">
+                                <div class="d-flex justify-content-strat">
+                                    <div class="form-check mx-3">
+                                        <input class="form-check-input" type="radio" name="mode" id="public" value="public">
+                                        <label class="form-check-label" for="public">
+                                          Public
+                                        </label>
+                                      </div>
+                                      <div class="form-check mx-3">
+                                        <input class="form-check-input" type="radio" name="mode" id="private" value="private" checked>
+                                        <label class="form-check-label" for="private">
+                                          Private
+                                        </label>
+                                    </div>
+                                </div>
+                               <div class="div mx-3">
+                                <small class="foem-text text-secondary text-monospace" id="optionsHelp">Public poll is eligible for all users</small>
+                               </div>
+                            </div>
+                            <div class="custom-scrollbar-css" id="users">
+                                <ul class="list-group list-group-flush">
+                                    <% users.forEach(user => { %>
+                                        <li class="list-group-item bg-dark text-light">
+                                            <div class="row">
+                                                <div class="col-2 py-2">
+                                                    <input type="checkbox" name="usersToAllowedVote" class="ml-lg-3" value="<%= user.email %>">
+                                                </div>
+                                                <div class="col-10">
+                                                    <span class="lead h5"><%= user.username %></span>
+                                                    <span class="blockquote-footer"><%= user.email %></span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block mt-3">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script>
+        let y = 1
+        document.getElementById('addOption').addEventListener('click',
+            function(e) {
+                e.preventDefault()
+                if(y > 0) {
+                console.log("x : ", y)
+                let x = document.createElement("INPUT")
+                x.setAttribute("type" , "text")
+                x.setAttribute("name", "answers")
+                x.setAttribute("id", "Option-"+y)
+                x.setAttribute("class", "form-control bg-dark text-light lead my-2")
+                x.setAttribute("placeholder", "Option-"+y)
+                y = y + 1
+                document.getElementById('options').appendChild(x)
+                }
+            })
+
+        document.getElementById('deleteOption').addEventListener('click',
+            function(e) {
+                e.preventDefault()
+                if(y > 1) {
+                y = y - 1
+                console.log("y : ", y)
+                let id = 'Option-'+ y
+                let x = document.getElementById(id)
+                x.remove()
+                }
+            })
+        
+        document.getElementById('public').addEventListener('click', () => {
+            document.getElementById('users').style.display = "none"
+        })
+        document.getElementById('private').addEventListener('click', () => {
+            document.getElementById('users').style.display = "block"
+        })
+        
+    </script>
+
+
+<%- include('partials/footer') -%>
