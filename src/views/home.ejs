@@ -23,11 +23,14 @@
           <a class="dropdown-item bg-dark text-light" href="/home">All Polls</a>
           <a class="dropdown-item bg-dark text-light" href="/home?mode=public">Public Polls</a>
           <a class="dropdown-item bg-dark text-light" href="/home?mode=private">Private Polls</a>
-          <a class="dropdown-item bg-dark text-light" href="/home?mode=eligible">Eligible To Vote In Polls</a>
+          <a class="dropdown-item bg-dark text-light" href="/home?mode=eligible">Polls Eligible For Me</a>
           <a class="dropdown-item bg-dark text-light" href="/home?mode=completed">Completed Polls</a>
         </div>
       </div>
-        <div class="accordion" id="accordion">
+        <% if(polls.length <= 0) { %>
+          <h1 class="display-4">No polls Found</h1>
+        <% } else { %>
+          <div class="accordion" id="accordion">
             <% let i = 0 %>
             <% polls.forEach(poll => { %>
                 <div class="card bg-dark text-light my-2">
@@ -38,8 +41,10 @@
                             <%= poll.pollQuestion %>
                           </button>
                           <div class="d-none d-lg-block">
-                            <span class="ml-3 badge badge-pill badge-success p-2 <%= Date.now() >= poll.startAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
-                            <span class="ml-3 badge badge-pill badge-secondary p-2 <%= Date.now() <= poll.startAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
+                            <span class="ml-3 badge badge-pill badge-success p-2 <%= Date.now() >= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
+                            <span class="ml-3 badge badge-pill badge-secondary p-2 <%= Date.now() <= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
+                            <span class="ml-3 badge badge-pill badge-danger p-2 <%= Date.now() > poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Ended</small></span>
+                                
                           </div>
                           </div>
                         <a href="/get_poll/<%= poll._id %>" class="btn btn-info btn d-none d-sm-block" data-toggle="tooltip" data-placement="right" title="Feedback & Result">Read More &#8594;</a>
@@ -61,8 +66,9 @@
                             <div class="col-md-6">
                               <div class="ml-md-5">
                                 <div class="d-block d-lg-none mb-3">
-                                  <span class="ml-3 badge badge-pill badge-success p-2 <%= Date.now() >= poll.startAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
-                                  <span class="ml-3 badge badge-pill badge-secondary p-2 <%= Date.now() <= poll.startAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
+                                  <span class="ml-md-3 badge badge-pill badge-success p-2 <%= Date.now() > poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
+                                  <span class="ml-md-3 badge badge-pill badge-secondary p-2 <%= Date.now() < poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
+                                  <span class="ml-md-3 badge badge-pill badge-danger p-2 <%= Date.now() > poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Ended</small></span>
                                 </div>
                                 <div class="d-flex justify-content-between align-items-center">
                                   <p><small class="text-muted">Owner : -</small><span class="ml-2 text-monospace text-info ownerName"><%= poll.ownerName %></span></p>
@@ -74,14 +80,16 @@
                               </div>
                             </div>
                       </div>
-                            <a href="/get_poll/<%= poll._id %>" class="btn btn-outline-info btn d-block d-sm-none ml-4 mt-1" data-toggle="tooltip" data-placement="right" title="Feedback & Result">Read More &#8594;</a>
+                            <a href="/get_poll/<%= poll._id %>" class="btn btn-outline-info btn d-block d-sm-none ml-md-4 mt-1" data-toggle="tooltip" data-placement="right" title="Feedback & Result">Read More &#8594;</a>
                         </div>
                       </div>
                     </div>
                     <% i = i + 1 %>
               <% }) %>
-                </div>
-                  
+            </div>
+            
+        <% } %>
+              
             
           </div>
           

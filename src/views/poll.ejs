@@ -16,7 +16,9 @@
             <% } %>
             <div class="d-flex justify-content-between align-items-center">
                 <a href="/home" class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home">&#8592; Go Back</a>
-                <a href="#" class="btn btn-outline-primary btn mb-3" data-toggle="tooltip" data-placement="right" title="time left"><span id="timeLeft" class="text-monospace text-light"></span></a>
+                <% if(isPollStarted && !isPollEnded) { %>
+                    <a href="#" class="btn btn-outline-success btn mb-3 text-monospace text-light" data-toggle="tooltip" data-placement="right" title="Time left" id="time"></a>
+                <% } %>
                 
             </div>
             <div class="jumbotron bg-dark text-light">
@@ -39,15 +41,15 @@
                                     <% }) %>
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                             </div>
-                                <% if(isAllowedUser && !isVoted && isPollStarted && !isPollEnded) { %>
+                                <%  if(isPollEnded) { %>
+                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="poll is ended already">Submit</button>
+                                <% } else if(!isPollStarted) { %>
+                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="Poll is not started yet">Submit</button>
+                                <% } else if(isAllowedUser && !isVoted && isPollStarted && !isPollEnded) { %>
                                     <button type="submit" class="btn btn-outline-success btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="Give your feedback">Submit</button>
                                 <% } else if(isVoted) { %> 
                                     <button type="submit" class="btn btn-outline-info btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="You have voted Already!">Submit</button>
-                                <% } else if(!isPollStarted) { %>
-                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="Poll is not started yet">Submit</button>
-                                <% } else if(isPollEnded) { %>
-                                    <button type="submit" class="btn btn-outline-danger btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="top" title="poll is ended already">Submit</button>
-                                <% } else { %>
+                                <% }  else { %>
                                     <button type="submit" class="btn btn-outline-secondary btn-lg btn-block mt-4" data-toggle="tooltip" data-placement="bottom" title="You are not allowed to vote in this poll">Submit</button>
                                 <% } %>
                                 
@@ -55,9 +57,11 @@
                     </div>
                 </div>
             </div>
+            <% if(isVoted || !isAllowedUser) { %>
             <div class="jumbotron bg-dark text-light">
                 <div id="chartContainer"></div>
             </div>
+            <% } %>
         </div>
     </div>
 
@@ -65,29 +69,39 @@
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
 
 <script>
-    var chartContainer = document.querySelector('#chartContainer')
+    var chartContainer = document.getElementById('chartContainer')
     var dataPoints = '<%- JSON.stringify(dataPoints) %>'
     var pollQuestion = '<%- JSON.stringify(pollQuestion) %>'
+    var isVoted = '<%- JSON.stringify(isVoted) %>'
     var endAt = '<%- JSON.stringify(endAt) %>'
-    var renderAgain = false
     dataPoints = JSON.parse(dataPoints)
     pollQuestion = JSON.parse(pollQuestion)
-    endAt = new Date(JSON.parse(endAt))
-    const days = endAt.getDate() - new Date().getDate()
-    const hours = endAt.getHours() - new Date().getHours()
-    const min = Math.abs(endAt.getMinutes() - new Date().getMinutes())
-    document.getElementById('timeLeft').innerHTML = days + '-d '+ hours +'-h '+min+'-m'
+    endAt = JSON.parse(endAt)
+    const date1 = new Date()
+    const date2 = new Date(endAt);
+    
+    var time = document.getElementById('time') 
 
-    setInterval(function() {
-        const days = endAt.getDate() - new Date().getDate()
-        const hours = endAt.getHours() - new Date().getHours()
-        const min = Math.abs(endAt.getMinutes() - new Date().getMinutes())
-        document.getElementById('timeLeft').innerHTML = days + '-d '+ hours +'-h '+min+'-m'
+    if(time) {
+        var delta = Math.abs(date2 - date1) / 1000;
 
-    }, 1000 *  60 )
+        var days = Math.floor(delta / 86400);
+        delta -= days * 86400;
 
+        var hours = Math.floor(delta / 3600) % 24;
+        delta -= hours * 3600;
+
+        var minutes = Math.floor(delta / 60) % 60;
+        delta -= minutes * 60;
+
+        if(days > 0) {
+            time.innerHTML = days+'-Days '+ hours+'-H '+minutes+'-M'
+        }
+        
+    }
     
     if(chartContainer){
+        
         var chart = new CanvasJS.Chart('chartContainer', {
             animationEnabled : true,
             theme : 'dark2',

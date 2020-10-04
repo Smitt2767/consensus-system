@@ -46,7 +46,7 @@ router.get('/home', isAuth, async (req, res) => {
             polls
         })
     }
-
+    
     polls = await Poll.find().where('endAt').gt(new Date()).select('-owner -createdAt -updatedAt -__v')
 
     res.render('home',{
@@ -68,7 +68,7 @@ router.get('/get_poll/:id',isAuth, async (req, res) => {
     if(Date.now() > poll.endAt.getTime()) {
         isPollEnded = true
     }
-
+    
     const mode = poll.mode
     let user
     if(mode === 'public') {
@@ -104,7 +104,8 @@ router.get('/get_poll/:id',isAuth, async (req, res) => {
         dataPoints,
         isPollStarted,
         isPollEnded,
-        endAt : poll.endAt
+        endAt : poll.endAt,
+        startAt : poll.startAt
     })
 })
 

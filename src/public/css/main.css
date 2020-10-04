@@ -70,7 +70,7 @@ body {
 } */
 
 .custom-scrollbar-css {
-  height: 370px;
+  max-height: 370px;
 }
 
 
@@ -113,7 +113,4 @@ input[type=number] {
 }
 #custom-file-label {
     overflow: hidden;
-}
-.time {
-    max-width : 200px
 }
