@@ -12,46 +12,88 @@ var pusher = new Pusher({
     cluster: 'ap2',
 });
 
+const POLLS_PER_PAGE = 5;
+
 router.get('/home', isAuth, async (req, res) => {
+    const page = +req.query.page || 1 ;
     const mode = req.query.mode
     let polls
-
+    
+    let totalPolls = 0;
+    
     if(mode === 'private' || mode === 'public') {
-        polls = await Poll.find({ mode }).select('-owner -createdAt -updatedAt -__v')
+        totalPolls = await Poll.find({ mode }).countDocuments().where('endAt').gt(new Date())
+        
+        polls = await Poll.find({ mode }).select('-owner -createdAt -updatedAt -__v').sort('-createdAt').where('endAt').gt(new Date())
+        .skip((page - 1) * POLLS_PER_PAGE)
+        .limit(POLLS_PER_PAGE)
+
         return res.render('home',{
             currentRoute : 'home',
-            polls
+            polls,
+            page,
+            hasNext : page * POLLS_PER_PAGE < totalPolls,
+            hasPrevious : page > 1,
+            mode
         })
     }
     if(mode === 'eligible') {
-
+        totalPolls = await Poll.find({
+            $or : [
+                { mode : 'public' },
+                { 'usersToAllowedVote.email' : req.user.email }
+            ]
+        }).countDocuments().where('endAt').gt(new Date())
+        
         polls = await Poll.find({
             $or : [
                 { mode : 'public' },
                 { 'usersToAllowedVote.email' : req.user.email }
             ]
         }).select('-owner -createdAt -updatedAt -__v')
+        .sort('-createdAt').where('endAt').gt(new Date())
+        .skip((page - 1) * POLLS_PER_PAGE)
+        .limit(POLLS_PER_PAGE)
         
         return res.render('home',{
             currentRoute : 'home',
-            polls
+            polls,
+            page,
+            hasNext : page * POLLS_PER_PAGE < totalPolls,
+            hasPrevious : page > 1,
+            mode
         })
     }
     if(mode === 'completed') {
+        totalPolls = await Poll.find().countDocuments().where('endAt').lt(new Date())
         
-        polls = await Poll.find({}).where('endAt').lt(new Date()).select('-owner -createdAt -updatedAt -__v')
+        polls = await Poll.find({}).where('endAt').lt(new Date()).select('-owner -createdAt -updatedAt -__v').sort('-createdAt')
+        .skip((page - 1) * POLLS_PER_PAGE)
+        .limit(POLLS_PER_PAGE)
 
         return res.render('home',{
             currentRoute : 'home',
-            polls
+            polls,
+            page,
+            hasNext : page * POLLS_PER_PAGE < totalPolls,
+            hasPrevious : page > 1,
+            mode
         })
     }
+    totalPolls = await Poll.find().countDocuments().where('endAt').gt(new Date())
     
-    polls = await Poll.find().where('endAt').gt(new Date()).select('-owner -createdAt -updatedAt -__v')
 
+    polls = await Poll.find().where('endAt').gt(new Date()).select('-owner -createdAt -updatedAt -__v').sort('-createdAt')
+    .skip((page - 1) * POLLS_PER_PAGE)
+    .limit(POLLS_PER_PAGE)
+    
     res.render('home',{
         currentRoute : 'home',
-        polls
+        polls,
+        page,
+        hasNext : page * POLLS_PER_PAGE < totalPolls,
+        hasPrevious : page > 1,
+        mode
     })
 })
 
@@ -105,7 +147,7 @@ router.get('/get_poll/:id',isAuth, async (req, res) => {
         isPollStarted,
         isPollEnded,
         endAt : poll.endAt,
-        startAt : poll.startAt
+        startAt : poll.startAt,
     })
 })
 
@@ -140,7 +182,7 @@ router.get('/create_poll', isAuth, async (req, res) => {
 router.post('/create_poll', isAuth, async (req, res) => {
     const owner = req.user._id
     let userEmails = req.body.usersToAllowedVote
-    const pollQuestion = req.body.pollQuestion.replace(/['"]/g, '')
+    const pollQuestion = req.body.pollQuestion.replace(/['",]/g, '')
     let answers = req.body.answers
     const mode = req.body.mode
     const start = req.body.startAt
@@ -160,7 +202,7 @@ router.post('/create_poll', isAuth, async (req, res) => {
     const startAt = new Date(start.replace(' ', 'T'))
     const endAt = new Date(end.replace(' ', 'T'))
 
-    if(startAt.getTime() > endAt.getTime()) {
+    if(startAt.getTime() > endAt.getTime() || Date.now() > startAt.getTime()) {
         req.flash('error', 'Invalid time configuration')
         return res.redirect('back')
     }

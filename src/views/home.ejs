@@ -16,7 +16,7 @@
         </div>
       <% } %>
       <div class="dropdown mb-3">
-        <button class="btn btn-outline-dark text-light dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button class="btn btn-outline-dark text-light dropdown-toggle mt-lg-0 mt-xl-0 mt-md-4 mt-sm-4 mt-xs-0" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           Filter
         </button>
         <div class="dropdown-menu bg-dark" aria-labelledby="dropdownMenuButton">
@@ -89,7 +89,21 @@
             </div>
             
         <% } %>
-              
+            
+        <nav class="container mt-5">
+          <ul class="pagination d-flex  mb-5">
+              <% if(hasPrevious) { %>
+                <li class="page-item mr-auto">
+                  <a class="page-link border text-info lead mx-1" href="/home?page=<%= (page-1).toString() %><%= mode ? '&mode='+mode : '' %>"><span><i class="fa fa-arrow-left px-2"></i></span><span class="sr-only">Previous</span></a>
+                </li>
+              <% } %>
+              <% if(hasNext) { %>
+                <li class="page-item ml-auto">
+                  <a class="page-link border text-info lead mx-1" href="/home?page=<%= (page+1).toString() %><%= mode ? '&mode='+mode : '' %>"><span><i class="fa fa-arrow-right px-2"></i></span><span class="sr-only">Next</span></a>
+                </li>
+              <% } %>
+          </ul>
+        </nav>
             
           </div>
           

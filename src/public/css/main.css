@@ -114,3 +114,6 @@ input[type=number] {
 #custom-file-label {
     overflow: hidden;
 }
+.pagination a {
+    background-color: #333;
+}
