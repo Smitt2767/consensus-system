@@ -34,16 +34,16 @@
             <% let i = 0 %>
             <% polls.forEach(poll => { %>
                 <div class="card bg-dark text-light my-2">
-                    <div class="card-header" id="<%= 'heading'+(i+1) %>">
+                    <div class="card-header homePageCardHeader" id="<%= 'heading'+(i+1) %>">
                       <h5 class="mb-0 d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                          <button class="btn btn-dark collapsed " data-toggle="collapse" aria-expanded="false" aria-controls="<%= 'collapse'+(i+1) %>" data-target="<%= '#collapse'+(i+1) %>" >
+                          <button class="btn btn-dark collapsed mr-3"  data-toggle="collapse" aria-expanded="false" aria-controls="<%= 'collapse'+(i+1) %>" data-target="<%= '#collapse'+(i+1) %>" >
                             <%= poll.pollQuestion %>
                           </button>
                           <div class="d-none d-lg-block">
-                            <span class="ml-3 badge badge-pill badge-success p-2 <%= Date.now() >= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
-                            <span class="ml-3 badge badge-pill badge-secondary p-2 <%= Date.now() <= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
-                            <span class="ml-3 badge badge-pill badge-danger p-2 <%= Date.now() > poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Ended</small></span>
+                            <span class="badge badge-pill badge-success p-2 <%= Date.now() >= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Started</small></span>
+                            <span class="badge badge-pill badge-secondary p-2 <%= Date.now() <= poll.startAt.getTime() && Date.now() < poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Not Started</small></span>
+                            <span class="badge badge-pill badge-danger p-2 <%= Date.now() > poll.endAt.getTime() ? 'd-block' : 'd-none' %>"><small class="text-monospace">Poll Ended</small></span>
                                 
                           </div>
                           </div>

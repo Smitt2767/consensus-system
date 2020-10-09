@@ -117,3 +117,9 @@ input[type=number] {
 .pagination a {
     background-color: #333;
 }
+
+@media (max-width : 450px) {
+    .card .homePageCardHeader {
+        overflow: scroll;
+    }
+}
