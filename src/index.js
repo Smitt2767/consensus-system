@@ -8,7 +8,7 @@ const MongodbStore = require('connect-mongodb-session')(session)
 require('./db/mongoose.js')
 const User = require('./model/user')
 const ContactUs = require('./model/contactUs')
-const { isAuth, alreadyAuth } = require('./middleware/auth')
+const { isAdmin, alreadyAuth, isAuth } = require('./middleware/auth')
 
 
 // csrf
@@ -16,6 +16,7 @@ const csrf = require('csurf')
 
 const userRoute = require('./routes/user')
 const pollRoute = require('./routes/poll')
+const manageRoute = require('./routes/manage')
 
 const app = express()
 const viewsDir = path.join(__dirname, 'views')
@@ -63,7 +64,7 @@ app.set('view engine', 'ejs')
 
 app.use('/user',userRoute)
 app.use(pollRoute)
-
+app.use('/manage', isAuth, isAdmin, manageRoute)
 
 app.get('', alreadyAuth, (req, res) => {
     res.render('index', {

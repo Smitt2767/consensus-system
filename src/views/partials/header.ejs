@@ -33,9 +33,23 @@
                         <li class="nav-item px-2">
                             <a href="/get_polls/me" class="nav-link <%= currentRoute === 'get_polls_me' ? 'active' : null %>">My Polls</a>
                         </li>
-                        <li class="nav-item px-2">
-                            <a href="/create_poll" class="nav-link <%= currentRoute === 'create_poll' ? 'active' : null %>">Create Poll</a>
-                        </li>
+                        <% if(user.role === 'admin' || user.role === 'editor') { %>
+                            <li class="nav-item px-2">
+                                <a href="/create_poll" class="nav-link <%= currentRoute === 'create_poll' ? 'active' : null %>">Create Poll</a>
+                            </li>
+                        <% } %>
+                        <% if(user.role === 'admin') { %>
+                            <li class="nav-item dropdown <%= currentRoute === 'manage' ? 'active' : null %>">
+                                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                  Manage
+                                </a>
+                                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                                  <a class="dropdown-item bg-dark text-light" href="/manage/users">Users</a>
+                                  <a class="dropdown-item bg-dark text-light" href="/manage/polls">Polls</a>
+                                  <a class="dropdown-item bg-dark text-light" href="/manage/feedbacks">Feedbacks</a>
+                                </div>
+                            </li>
+                        <% } %>
                         <li class="nav-item px-2">
                             <a href="/user/profile" class="nav-link <%= currentRoute === 'profile' ? 'active' : null %>">Profile</a>
                         </li>

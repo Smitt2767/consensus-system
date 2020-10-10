@@ -96,6 +96,27 @@ body {
   background-image: linear-gradient(to top, #007BFF 0%, #3a7bd5 100%);
 }
 
+
+.custom-scrollbar {
+  overflow-x: scroll;
+}
+
+/* scrollbar width */
+.custom-scrollbar::-webkit-scrollbar {
+  height : 3px;
+}
+
+/* scrollbar track */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #eee;
+}
+
+/* scrollbar handle */
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #007BFF;
+  background-image: linear-gradient(#007BFF 0%, #3a7bd5 100%);
+}
+
 /* .profile {
     width : 65%;
     height : 100%;

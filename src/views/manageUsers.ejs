@@ -1,0 +1,76 @@
+<%- include('partials/header') -%>
+
+<div id="main">
+    <div class="container">
+        <% if(error && error.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show">
+              <strong>Error!</strong> <%= error %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+          <% } %>
+          <% if(success && success.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show">
+              <strong>Success!</strong> <%= success %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+          <% } %>
+        <h1 class="display-3">Manage Users</h1>
+        <table class="table table-hover table-dark table-bordered table-responsive custom-scrollbar mt-4 ">
+            <thead class="text-info">
+                <tr>
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Gender</th>
+                    <th>Job_Type</th>
+                    <th>Job_Title</th>
+                    <th>Phone_Number</th>
+                    <th>Role</th>
+                    <th>Update_Role</th>
+                    <th>Delete_User</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let i = 1 %>
+                <% users.forEach(u => { %>
+                    <tr>
+                        <th scope="row"><%= i %></th>
+                        <td><%= u.username %></td>
+                        <td><%= u.email %></td>
+                        <td><%= u.gender %></td>
+                        <td><%= u.job_type %></td>
+                        <td><%= u.job_title %></td>
+                        <td><%= u.ph_no %></td>
+                        <td><%= u.role %></td>
+                        <td>
+                            <form action="/manage/user/update/<%= u._id %>" method="post">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <div class="input-group mb-3">
+                                    <select class="custom-select bg-dark text-light p-1" name="role">
+                                    <option value="editor">editor</option>
+                                    <option value="admin">admin</option>
+                                    <option value="restricted">restricted</option>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <button type="submit" class="btn btn-outline-info">&#8594;</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </td>
+                        <td>
+                            <form action="/manage/user/delete/<%= u._id %>" method="post" onsubmit="return confirm('Do you really want to delete, <%= u.username %>?')">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button type="submit" class="btn btn-outline-danger btn btn-block">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <% i += 1 %>
+                <% }) %>
+                
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<%- include('partials/footer') -%>

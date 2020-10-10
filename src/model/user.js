@@ -11,6 +11,10 @@ const userSchema = new mongoose.Schema({
         trim : true,
         default : ''
     },
+    role : {
+        type : String,
+        default : 'editor'
+    },
     job_type : {
         type : String,
         trim : true,

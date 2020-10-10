@@ -2,7 +2,7 @@ const express = require('express')
 const Pusher = require('pusher')
 const Poll = require('../model/poll')
 const User = require('../model/user')
-const { isAuth } =require('../middleware/auth')
+const { isAuth, isAllowedToCreate } =require('../middleware/auth')
 const router = express.Router()
 
 var pusher = new Pusher({
@@ -164,7 +164,7 @@ router.get('/get_polls/me', isAuth, async (req, res) => {
     })
 })
 
-router.get('/create_poll', isAuth, async (req, res) => {
+router.get('/create_poll', isAuth, isAllowedToCreate, async (req, res) => {
 
     try {
         const users = await User.find().select('username email -_id')
@@ -175,8 +175,6 @@ router.get('/create_poll', isAuth, async (req, res) => {
     }catch(e) {
         res.redirect('/home')
     }
-
-    
 })
 
 router.post('/create_poll', isAuth, async (req, res) => {
