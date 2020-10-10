@@ -21,23 +21,23 @@
         <table class="table table-hover table-dark table-bordered table-responsive custom-scrollbar mt-4">
             <thead>
                 <tr class="text-info">
-                    <th>#</th>
-                    <th>Id</th>
-                    <th>Owner_Name</th>
-                    <th>Poll_Question</th>
-                    <th>Options</th>
-                    <th>Mode</th>
-                    <th>Allowd_Users</th>
-                    <th>StartingAt</th>
-                    <th>EndingAt</th>
-                    <th>Delete</th>
+                    <th scope="col">#</th>
+                    <th scope="col">Id</th>
+                    <th scope="col">Owner_Name</th>
+                    <th scope="col">Poll_Question</th>
+                    <th scope="col">Options</th>
+                    <th scope="col">Mode</th>
+                    <th scope="col">Allowd_Users</th>
+                    <th scope="col">StartingAt</th>
+                    <th scope="col">EndingAt</th>
+                    <th scope="col">Delete</th>
                 </tr>
             </thead>
             <tbody>
                 <% let i = 1 %>
                 <% polls.forEach(poll => { %>
                     <tr>
-                        <td><%= i %></td>
+                        <th scope="row"><%= i %></th>
                         <td><%= poll._id %></td>
                         <td><%= poll.ownerName %></td>
                         <td><%= poll.pollQuestion %></td>

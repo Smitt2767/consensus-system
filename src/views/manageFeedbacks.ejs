@@ -19,20 +19,20 @@
         <% if(contacts.length <= 0) { %>
             <h3 class="lead">No Feedbacks Found!</h3>
         <% } %>
-        <table class="table table-hover table-dark table-bordered custom-scrollbar mt-4">
+        <table class="table table-hover table-dark table-bordered table-responsive custom-scrollbar mt-4">
             <thead>
                 <tr class="text-info">
-                    <th>#</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Messege</th>
+                    <th scope="col">#</th>
+                    <th scope="col">Username</th>
+                    <th scope="col">Email</th>
+                    <th scope="col" class="w-100">Messege</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody >
                 <% let i = 1 %>
                 <% contacts.forEach(feedback => { %>
                     <tr>
-                        <td><%= i %></td>
+                        <th scope="row"><%= i %></th>
                         <td><%= feedback.username %></td>
                         <td><%= feedback.email %></td>
                         <td><%= feedback.message %></td>
