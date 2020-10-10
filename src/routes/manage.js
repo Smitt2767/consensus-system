@@ -2,7 +2,8 @@ const express = require('express')
 
 const router = express.Router()
 const User = require('../model/user')
-
+const Polls = require('../model/poll')
+const Contacts = require('../model/contactUs')
 
 router.get('/users', async (req, res) => {
 
@@ -11,6 +12,9 @@ router.get('/users', async (req, res) => {
             $ne : 'admin'
         }
     }).select('-password -createdAt -updatedAt')
+
+    
+
     res.render('manageUsers', {
         currentRoute : 'manage',
         users
@@ -43,14 +47,33 @@ router.post('/user/update/:id', async (req, res) => {
     res.redirect('back')
 })
 
-router.get('/polls', (req, res) => {
+router.get('/polls', async (req, res) => {
+
+    const polls = await Polls.find().select('-createdAt -updatedAt')
+
     res.render('managePolls', {
-        currentRoute : 'manage'
+        currentRoute : 'manage',
+        polls
     })
 })
-router.get('/feedbacks', (req, res) => {
+
+router.post('/poll/delete/:id', async (req, res) => {
+    const poll = await Polls.findByIdAndDelete(req.params.id)
+    if(!poll) {
+        req.flash('error','No poll found')
+        return res.redirect('back')
+    }
+    req.flash('success', 'poll deleted successfully')
+    res.redirect('back')
+})
+
+router.get('/feedbacks', async (req, res) => {
+
+    const contacts = await Contacts.find()
+
     res.render('manageFeedbacks', {
-        currentRoute : 'manage'
+        currentRoute : 'manage',
+        contacts
     })
 })
 

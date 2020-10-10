@@ -2,7 +2,46 @@
 
 <div id="main">
     <div class="container">
+        <% if(error && error.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show">
+              <strong>Error!</strong> <%= error %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+          <% } %>
+          <% if(success && success.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show">
+              <strong>Success!</strong> <%= success %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        <% } %>
+
         <h1 class="display-3">Manage Feedbacks</h1>
+        <% if(contacts.length <= 0) { %>
+            <h3 class="lead">No Feedbacks Found!</h3>
+        <% } %>
+        <table class="table table-hover table-dark table-bordered custom-scrollbar mt-4">
+            <thead>
+                <tr class="text-info">
+                    <th>#</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Messege</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let i = 1 %>
+                <% contacts.forEach(feedback => { %>
+                    <tr>
+                        <td><%= i %></td>
+                        <td><%= feedback.username %></td>
+                        <td><%= feedback.email %></td>
+                        <td><%= feedback.message %></td>
+                    </tr>
+                    <% i += 1 %>
+                <% }) %>
+            </tbody>
+
+        </table>
     </div>
 
 </div>

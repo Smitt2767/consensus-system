@@ -2,7 +2,102 @@
 
 <div id="main">
     <div class="container">
+        <% if(error && error.length > 0) { %>
+            <div class="alert alert-danger alert-dismissible fade show">
+              <strong>Error!</strong> <%= error %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+          <% } %>
+          <% if(success && success.length > 0) { %>
+            <div class="alert alert-success alert-dismissible fade show">
+              <strong>Success!</strong> <%= success %>
+              <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        <% } %>
         <h1 class="display-3">Manage Polls</h1>
+        <% if(polls.length <= 0) { %>
+            <h3 class="lead">No Polls Found!</h3>
+        <% } else { %>
+        <table class="table table-hover table-dark table-bordered table-responsive custom-scrollbar mt-4">
+            <thead>
+                <tr class="text-info">
+                    <th>#</th>
+                    <th>Id</th>
+                    <th>Owner_Name</th>
+                    <th>Poll_Question</th>
+                    <th>Options</th>
+                    <th>Mode</th>
+                    <th>Allowd_Users</th>
+                    <th>StartingAt</th>
+                    <th>EndingAt</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% let i = 1 %>
+                <% polls.forEach(poll => { %>
+                    <tr>
+                        <td><%= i %></td>
+                        <td><%= poll._id %></td>
+                        <td><%= poll.ownerName %></td>
+                        <td><%= poll.pollQuestion %></td>
+                        <td>
+                            <button class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#Options<%= i %>">Check</button>
+
+                            <div class="modal" id="Options<%= i %>">
+                                <div class="modal-dialog">
+                                  <div class="modal-content  bg-dark text-light">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title"><%= poll.pollQuestion %></h5>
+                                      <button class="close text-light" data-dismiss="modal">&times;</button>
+                                    </div>
+                                    <div class="modal-body text-light">
+                                        <ul class="list-group list-group-flush">
+                                            <% poll.options.forEach(option => { %>
+                                                <li class="list-group-item bg-dark text-light"><%= option.answer %></li>
+                                            <% }) %>
+                                        </ul>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><%= poll.mode %></td>
+                        <td>
+                            <button class="btn btn-outline-info btn-block" data-toggle="modal" data-target="#allowdUsers<%= i %>">Check</button>
+
+                            <div class="modal" id="allowdUsers<%= i %>">
+                                <div class="modal-dialog">
+                                  <div class="modal-content  bg-dark text-light">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title"><%= poll.pollQuestion %></h5>
+                                      <button class="close text-light" data-dismiss="modal">&times;</button>
+                                    </div>
+                                    <div class="modal-body text-light">
+                                        <ul class="list-group list-group-flush">
+                                            <% poll.usersToAllowedVote.forEach(userToAllowedVote => { %>
+                                                <li class="list-group-item bg-dark text-light"><%= userToAllowedVote.email %></li>
+                                            <% }) %>
+                                        </ul>
+                                    </div>
+                                  </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><%= poll.startAt.toString().replace('GMT+0530 (India Standard Time)', '') %></td>
+                        <td><%= poll.endAt.toString().replace('GMT+0530 (India Standard Time)', '') %></td>
+                        <td>
+                            <form action="/manage/poll/delete/<%= poll._id %>" method="post" onsubmit="return confirm('Do you really want to delete, <%= poll.pollQuestion %>?')">
+                                <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                <button type="submit" class="btn btn-outline-danger btn btn-block">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                <% i += 1 %>
+                <% }) %>
+            </tbody>
+        </table>
+        <% } %>
     </div>
 
 </div>
