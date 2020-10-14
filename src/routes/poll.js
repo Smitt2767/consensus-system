@@ -14,6 +14,7 @@ var pusher = new Pusher({
 
 const POLLS_PER_PAGE = 5;
 
+// get all the polls
 router.get('/home', isAuth, async (req, res) => {
     const page = +req.query.page || 1 ;
     const mode = req.query.mode
@@ -97,6 +98,8 @@ router.get('/home', isAuth, async (req, res) => {
     })
 })
 
+
+// get poll by it's id
 router.get('/get_poll/:id',isAuth, async (req, res) => {
     const id = req.params.id
     let isAllowedUser = false
@@ -151,6 +154,8 @@ router.get('/get_poll/:id',isAuth, async (req, res) => {
     })
 })
 
+
+// get user polls
 router.get('/get_polls/me', isAuth, async (req, res) => {
     
     await req.user.populate('polls').execPopulate()
@@ -164,6 +169,7 @@ router.get('/get_polls/me', isAuth, async (req, res) => {
     })
 })
 
+// get create poll page
 router.get('/create_poll', isAuth, isAllowedToCreate, async (req, res) => {
 
     try {
@@ -177,6 +183,7 @@ router.get('/create_poll', isAuth, isAllowedToCreate, async (req, res) => {
     }
 })
 
+// create poll : POST
 router.post('/create_poll', isAuth, async (req, res) => {
     const owner = req.user._id
     let userEmails = req.body.usersToAllowedVote
@@ -200,7 +207,7 @@ router.post('/create_poll', isAuth, async (req, res) => {
     const startAt = new Date(start.replace(' ', 'T'))
     const endAt = new Date(end.replace(' ', 'T'))
 
-    if(startAt.getTime() > endAt.getTime() || Date.now() > startAt.getTime()) {
+    if(startAt.getTime() > endAt.getTime() || Date.now() > (startAt.getTime() * 1000 * 5) ) {
         req.flash('error', 'Invalid time configuration')
         return res.redirect('back')
     }
@@ -209,7 +216,7 @@ router.post('/create_poll', isAuth, async (req, res) => {
         req.flash('error', 'Please add more then one options to continue')
         return res.redirect('back')
     }
-    answers = answers.filter(el => el != '')
+    answers = answers.filter(el => el != '' || el != ' ')
     if(answers.length < 2) {
         req.flash('error', 'Please add more then one options to continue')
         return res.redirect('back')
@@ -253,6 +260,7 @@ router.post('/create_poll', isAuth, async (req, res) => {
     res.redirect('back')
 })
 
+// Vote in poll by it's id :POST
 router.post('/vote/:id', isAuth, async (req, res) => {
     const id = req.params.id
     const answer = req.body.answer

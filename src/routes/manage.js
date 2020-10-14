@@ -5,6 +5,8 @@ const User = require('../model/user')
 const Polls = require('../model/poll')
 const Contacts = require('../model/contactUs')
 
+
+// Users
 router.get('/users', async (req, res) => {
 
     const users = await User.find({
@@ -12,8 +14,7 @@ router.get('/users', async (req, res) => {
             $ne : 'admin'
         }
     }).select('-password -createdAt -updatedAt')
-
-    
+    .sort('username')
 
     res.render('manageUsers', {
         currentRoute : 'manage',
@@ -47,9 +48,10 @@ router.post('/user/update/:id', async (req, res) => {
     res.redirect('back')
 })
 
+// polls
 router.get('/polls', async (req, res) => {
 
-    const polls = await Polls.find().select('-createdAt -updatedAt')
+    const polls = await Polls.find().select('-createdAt -updatedAt').sort('-createdAt')
 
     res.render('managePolls', {
         currentRoute : 'manage',
@@ -67,9 +69,10 @@ router.post('/poll/delete/:id', async (req, res) => {
     res.redirect('back')
 })
 
+// Feedback
 router.get('/feedbacks', async (req, res) => {
 
-    const contacts = await Contacts.find()
+    const contacts = await Contacts.find().sort('-createdAt')
 
     res.render('manageFeedbacks', {
         currentRoute : 'manage',
