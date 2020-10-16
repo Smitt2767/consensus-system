@@ -44,7 +44,9 @@ const userSchema = new mongoose.Schema({
         required : true,
         trim : true,
         minlength : 4
-    }
+    },
+    resetToken : String,
+    resetTokenExp : Date
 }, 
 {
     timestamps : true

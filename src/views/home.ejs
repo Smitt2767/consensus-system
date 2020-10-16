@@ -80,6 +80,24 @@
                               </div>
                             </div>
                       </div>
+                            <button class="btn btn-outline-success btn-block d-block d-sm-none ml-md-4 mb-3" data-toggle="modal" data-target="#Options<%= i %>">See Options &#8594;</button>
+                            <div class="modal" id="Options<%= i %>">
+                              <div class="modal-dialog">
+                                <div class="modal-content bg-dark text-light">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title text-info"><%= poll.pollQuestion %></h5>
+                                    <button class="close text-light" data-dismiss="modal">&times;</button>
+                                  </div>
+                                  <div class="modal-body text-light">
+                                      <ul class="list-group list-group-flush">
+                                          <% poll.options.forEach(option => { %>
+                                              <li class="list-group-item bg-dark text-muted"><%= option.answer %></li>
+                                          <% }) %>
+                                      </ul>
+                                  </div>
+                                </div>
+                              </div>
+                          </div>
                             <a href="/get_poll/<%= poll._id %>" class="btn btn-outline-info btn d-block d-sm-none ml-md-4 mt-1" data-toggle="tooltip" data-placement="right" title="Feedback & Result">Read More &#8594;</a>
                         </div>
                       </div>

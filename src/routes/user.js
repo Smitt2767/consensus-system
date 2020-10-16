@@ -3,8 +3,8 @@ const { isAuth } = require('../middleware/auth')
 const User = require('../model/user')
 const router = express.Router()
 const path = require('path')
-const fs = require('fs')
-
+const crypto = require('crypto')
+const {resetPass} = require('../email/email')
 
 let error = false;
 
@@ -37,6 +37,10 @@ router.post('/signup', async (req, res) => {
 
     if(password !== c_password){
         req.flash('error', 'Passwords does not match')
+        return res.redirect('/signup')
+    }
+    if(password.length < 4) {
+        req.flash('error', 'Minimum password length 4 required')
         return res.redirect('/signup')
     }
 
@@ -82,8 +86,72 @@ router.get('/profile', isAuth, async (req, res) => {
     })
 })
 
-router.post('/forget_password', (req, res) => {
-    console.log(req.body.email)
+router.post('/forget_password',  (req, res) => {
+    
+    const email = req.body.email
+
+    crypto.randomBytes(32, async (err, buffer) => {
+        if(err) {
+            return res.redirect('bavk')
+        }
+        const token = buffer.toString('hex')
+        const user = await  User.findOne({
+            email
+        })
+        if(!user) {
+            req.flash('modal_error', 'No user with '+ email +' found!')
+            return res.redirect('back')
+        }
+        user.resetToken = token;
+        user.resetTokenExp = Date.now() + 1000 * 60 * 60 * 24
+        await user.save()
+        resetPass(email, token)
+
+        req.flash('modal_success', 'password reset link sent successfully to '+ email +' please check your mail inbox/spam folder!')
+        res.redirect('back')
+    })
+})
+
+router.get('/reset_password/:token', (req, res) => {
+    const token = req.params.token
+
+    res.render('resetPassword', {
+        token
+    })
+})
+
+router.post('/reset_password', async (req, res) => {
+    const token = req.body.token
+    const password1 = req.body.password1
+    const password2 = req.body.password2
+
+    if(!token || !password1 || !password2) {
+        req.flash('error', 'all fields are required!')
+        return res.redirect('back')
+    }
+    if(password1 !== password2) {
+        req.flash('error', 'passwords does not match!')
+        return res.redirect('back')
+    }
+    if(password1.length < 4) {
+        req.flash('error', 'Minimum password length 4 required')
+        return res.redirect('back')
+    }
+
+    const user = await User.findOne({
+        resetToken : token,
+        resetTokenExp : {
+            $gt : Date.now()
+        }
+    })
+
+    user.password = password1
+    user.resetToken = undefined
+    user.resetTokenExp = undefined
+
+    await user.save()
+    
+    req.flash('success', 'password chenged successfully! Go to home page and login')
     res.redirect('back')
 })
 
@@ -110,7 +178,6 @@ router.post('/profile',isAuth, upload, async (req, res) => {
     const job_title = req.body.job_title;
     const ph_no = req.body.ph_no;
     
-
     if(!first_name || !last_name || !gender || !job_title || !job_type || !ph_no ) {
         req.flash('error', 'Please fill all the inputs')
         return res.redirect('back')
