@@ -362,8 +362,8 @@ router.post('/delete_poll/:id', async (req, res) => {
         req.flash('error','invalid Poll!')
         return res.redirect('back')
     }
-
-    if(poll.owner === req.user._id){
+    
+    if(poll.owner.toString() === req.user._id.toString()){
         await Poll.findByIdAndDelete(id)
     }else {
         req.flash('error','unAuthorized User!')
