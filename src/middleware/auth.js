@@ -5,6 +5,7 @@ const isAuth = (req, res, next) => {
     next()
 }
 
+
 const alreadyAuth = (req, res, next) => {
     if(req.session.isLoggedin) {
         return res.redirect('/home')

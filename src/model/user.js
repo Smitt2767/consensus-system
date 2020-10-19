@@ -66,6 +66,9 @@ userSchema.statics.changePassword = async (old_password, new_password1, id) => {
     if(!isMatch) {
         throw 'Invalid old password'
     }
+    if(new_password1.length < 4) {
+        throw 'password length must be more than 3'
+    }
     user.password = new_password1
     await user.save()
 

@@ -15,7 +15,9 @@
                 </div>
             <% } %>
             <div class="d-flex justify-content-between align-items-center">
-                <a href="/home" class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home">&#8592; Go Back</a>
+                <script>
+                    document.write('<a href="' + document.referrer + '" class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home" >&#8592; Go Back</a>');
+                </script>
                 <% if(isPollStarted && !isPollEnded) { %>
                     <a href="#" class="btn btn-outline-success btn mb-3 text-monospace text-light" data-toggle="tooltip" data-placement="right" title="Time left" id="time"></a>
                 <% } %>
@@ -74,11 +76,15 @@
     var pollQuestion = '<%- JSON.stringify(pollQuestion) %>'
     var isVoted = '<%- JSON.stringify(isVoted) %>'
     var endAt = '<%- JSON.stringify(endAt) %>'
+    var pollID = '<%- JSON.stringify(pollId) %>'
+    pollID = JSON.parse(pollID)
+
     dataPoints = JSON.parse(dataPoints)
     pollQuestion = JSON.parse(pollQuestion)
     endAt = JSON.parse(endAt)
     const date1 = new Date()
     const date2 = new Date(endAt);
+    
     
     var time = document.getElementById('time') 
 
@@ -126,8 +132,7 @@
         var pusher = new Pusher('4477a0a083a468f17deb' , {
             cluster: 'ap2'
         })
-
-        var channel = pusher.subscribe('poll');
+        var channel = pusher.subscribe(pollID);
 
         channel.bind('vote', function(data) {
             dataPoints = data.dataPoints

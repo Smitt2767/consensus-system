@@ -1,10 +1,198 @@
 <%- include('partials/header') -%>
     <div id="main">
         <div class="container">
-            <h1 class="diplay-4">
-                My polls
-            </h1>
-        </div>
 
+            <% if(error && error.length > 0) { %>
+                <div class="alert alert-danger alert-dismissible fade show">
+                  <strong>Error!</strong> <%= error %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+              <% if(success && success.length > 0) { %>
+                <div class="alert alert-success alert-dismissible fade show">
+                  <strong>Success!</strong> <%= success %>
+                  <button type="button" class="close" data-dismiss="alert">&times;</button>
+                </div>
+              <% } %>
+
+            <div class="card-column row">
+                <% if(polls.length <= 0) { %>
+                    <h1 class="display-4">No polls Found</h1>
+                <% } else { %>
+                    <% let i = 0 %>
+                    <% polls.forEach(poll => {  %>
+                        <div class="col-md-6 my-2">
+                            <% let border = Date.now() > poll.startAt.getTime() ? 'border-success' : '' %>
+                            <% border = Date.now() > poll.endAt.getTime() ? 'border-danger' : border %>
+                            <div class="card bg-dark <%= border%>">
+                                <div class="chartBlock py-3" id="<%= poll._id %>"></div>
+                                <div class="card-body mt-3 pb-0">
+
+                                    <h5 class="card-title">
+                                        <%= poll.pollQuestion %>
+                                    </h5>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <p class="card-text"><small class="text-muted"><span class="text-info">Started At :- </span><%= poll.startAt.toString().replace(' GMT+0530 (India Standard Time)', '') %></small></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p class="card-text"><small class="text-muted"><span class="text-info">Ended At :- </span><%= poll.endAt.toString().replace(' GMT+0530 (India Standard Time)', '') %></small></p>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="">
+                                                    <button class="btn btn-outline-secondary" data-toggle="modal" data-target="#Options<%= i %>">See Poll Options</button>
+                                                    <div class="modal" id="Options<%= i %>">
+                                                        <div class="modal-dialog">
+                                                        <div class="modal-content bg-dark text-light">
+                                                            <div class="modal-header">
+                                                            <h5 class="modal-title text-info"><%= poll.pollQuestion %></h5>
+                                                            <button class="close text-light" data-dismiss="modal">&times;</button>
+                                                            </div>
+                                                            <div class="modal-body text-light">
+                                                                <ul class="list-group list-group-flush">
+                                                                    <% poll.options.forEach(option => { %>
+                                                                        <li class="list-group-item bg-dark text-muted"><%= option.answer %></li>
+                                                                    <% }) %>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="">
+                                                    <form action="/delete_poll/<%= poll._id %>" method="post" onsubmit="return confirm('Do you really want to delete, <%= poll.pollQuestion %>?')">
+                                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                            
+
+                                        </div>
+                                        <div class="col-md-6">
+                                            <a href="/get_poll/<%= poll._id %>" class="btn btn-outline-info btn-block">Read More &rarr;</a>
+                                        </div>
+                                        
+                                    </div>
+                                    
+                                    <hr>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <p class="card-text text-monospace"><small class="text-muted"><span class="text-info">Created At :- </span><%= poll.createdAt.toString().replace(' GMT+0530 (India Standard Time)', '') %></small></p>
+                                        
+                                        <% if(poll.mode === 'public') { %>
+                                            <p class="badge badge-pill badge-success">Public Poll</p>
+                                        <% } if (poll.mode === 'private') { %>
+                                            <p class="badge badge-pill badge-success">Private Poll</p>
+                                        <% }%>
+
+                                        <% i = i + 1 %> 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    <% }) %>
+                <% } %>
+            </div>
+            <!-- pagination -->
+
+
+            <nav class="container mt-2">
+                <ul class="pagination d-flex  mb-5">
+                    <% if(hasPrevious) { %>
+                      <li class="page-item mr-auto">
+                        <a class="page-link border text-info lead" href="/get_polls/me?page=<%= (page-1).toString() %>"><span><i class="fa fa-arrow-left px-5"></i></span><span class="sr-only">Previous</span></a>
+                      </li>
+                    <% } %>
+                    <% if(hasNext) { %>
+                      <li class="page-item ml-auto">
+                        <a class="page-link border text-info lead " href="/get_polls/me?page=<%= (page+1).toString() %>"><span><i class="fa fa-arrow-right px-5"></i></span><span class="sr-only">Next</span></a>
+                      </li>
+                    <% } %>
+                </ul>
+              </nav>
+
+
+
+        </div>
     </div>
+
+
+
+    
+    <script src="https://js.pusher.com/7.0/pusher.min.js"></script>    
+    <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+    <script>
+        let polls = '<%- JSON.stringify(polls) %>'
+        polls = JSON.parse(polls)
+        
+
+        polls.forEach(poll => {
+
+            var chartContainer = document.getElementById(poll._id) 
+            var dataPoints = []
+
+            poll.options.forEach(option => {
+                dataPoints.push({
+                    label : option.answer,
+                    y : option.countOfThatAnswer
+                })
+            })
+
+            if(chartContainer) {
+                var chart = new CanvasJS.Chart(poll._id, {
+                    animationEnabled : true,
+                    theme : 'dark2',
+                    title : {
+                        text : poll.pollQuestion
+                    },
+                    axisY: {
+                        title: "Number of Votes"
+                    },
+                    data: [{        
+                        type: "column",  
+                        showInLegend: true, 
+                        legendMarkerColor: "grey",
+                        legendText : 'Options' ,
+                        dataPoints
+                    }]
+
+                }).render()
+
+                var pusher = new Pusher('4477a0a083a468f17deb' , {
+                    cluster: 'ap2'
+                })
+                var channel = pusher.subscribe(poll._id);
+
+                channel.bind('vote', function(data) {
+                    dataPoints = data.dataPoints
+                    chart = new CanvasJS.Chart(poll._id , {
+                    theme : 'dark2',
+                    title : {
+                        text : poll.pollQuestion
+                    },
+                    axisY: {
+                        title: "Number of Votes"
+                    },
+                    data: [{        
+                        type: "column",  
+                        showInLegend: true, 
+                        legendMarkerColor: "grey",
+                        legendText : 'Options' ,
+                        dataPoints
+                    }]
+
+                }).render()
+                })
+       
+
+            }
+        })
+
+    </script>
+
+
 <%- include('partials/footer') -%>

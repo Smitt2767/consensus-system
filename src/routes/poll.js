@@ -3,6 +3,7 @@ const Pusher = require('pusher')
 const Poll = require('../model/poll')
 const User = require('../model/user')
 const { isAuth, isAllowedToCreate } =require('../middleware/auth')
+const { findOneAndDelete } = require('../model/poll')
 const router = express.Router()
 
 var pusher = new Pusher({
@@ -99,6 +100,32 @@ router.get('/home', isAuth, async (req, res) => {
 })
 
 
+// get user polls
+router.get('/get_polls/me', isAuth, async (req, res) => {
+    const PER_PAGE_POLLS = 2
+    const page = +req.query.page || 1 ;
+
+    const totalPolls = await Poll.find({
+        owner : req.user._id
+    }).countDocuments()
+
+
+    const polls = await Poll.find({
+        owner : req.user._id
+    }).sort('-createdAt')
+    .limit(PER_PAGE_POLLS)
+    .skip((page - 1) * PER_PAGE_POLLS)
+
+    res.render('my_polls', {
+        currentRoute : 'get_polls_me',
+        polls,
+        hasNext : page * PER_PAGE_POLLS < totalPolls,
+        hasPrevious : page > 1,
+        page
+    })
+})
+
+
 // get poll by it's id
 router.get('/get_poll/:id',isAuth, async (req, res) => {
     const id = req.params.id
@@ -151,23 +178,11 @@ router.get('/get_poll/:id',isAuth, async (req, res) => {
         isPollEnded,
         endAt : poll.endAt,
         startAt : poll.startAt,
+        pollId : poll._id.toString()
     })
 })
 
 
-// get user polls
-router.get('/get_polls/me', isAuth, async (req, res) => {
-    
-    await req.user.populate('polls').execPopulate()
-    const polls = req.user.polls
-    if(!polls) {
-        return res.send("You haven't crated any poll yet..")
-    }
-    res.render('my_polls', {
-        currentRoute : 'get_polls_me',
-        polls
-    })
-})
 
 // get create poll page
 router.get('/create_poll', isAuth, isAllowedToCreate, async (req, res) => {
@@ -325,7 +340,7 @@ router.post('/vote/:id', isAuth, async (req, res) => {
             })
         })
 
-        pusher.trigger('poll', 'vote', {
+        pusher.trigger(poll._id.toString() , 'vote', {
             dataPoints
         }); 
     }
@@ -337,5 +352,27 @@ router.post('/vote/:id', isAuth, async (req, res) => {
     res.redirect('back')
 })
 
+
+router.post('/delete_poll/:id', async (req, res) => {
+    const id = req.params.id
+
+    let poll = await Poll.findById(id)
+
+    if(!poll) {
+        req.flash('error','invalid Poll!')
+        return res.redirect('back')
+    }
+
+    if(poll.owner === req.user._id){
+        await Poll.findByIdAndDelete(id)
+    }else {
+        req.flash('error','unAuthorized User!')
+        return res.redirect('back')
+    }
+
+    req.flash('success', 'Poll deleted successfully')
+    res.redirect('back')
+
+})
 
 module.exports = router

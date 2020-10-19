@@ -61,6 +61,10 @@ body {
     height :370px;
     width : 100%;
 }
+.chartBlock {
+  height : 250px;
+  width : 100%;
+}
 
 /* #users-list-block {
     position: relative;

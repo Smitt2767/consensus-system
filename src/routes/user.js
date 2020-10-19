@@ -144,6 +144,10 @@ router.post('/reset_password', async (req, res) => {
             $gt : Date.now()
         }
     })
+    if(!user) {
+        req.flash('error', 'Invalid user!')
+        return res.redirect('back')
+    }
 
     user.password = password1
     user.resetToken = undefined
@@ -255,7 +259,7 @@ router.post('/change_password',isAuth, async (req, res) => {
     try {
         await User.changePassword(old_password, new_password1, req.user._id)
     }catch(e) {
-        
+        console.log(e)
         req.flash('error', e)
         return res.redirect('back')
     }
