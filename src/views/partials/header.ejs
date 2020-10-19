@@ -46,7 +46,7 @@
                                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                   Manage
                                 </a>
-                                <div class="dropdown-menu bg-dark" aria-labelledby="navbarDropdown">
+                                <div class="dropdown-menu bg-dark border" aria-labelledby="navbarDropdown">
                                   <a class="dropdown-item bg-dark text-light" href="/manage/users">Users</a>
                                   <a class="dropdown-item bg-dark text-light" href="/manage/polls">Polls</a>
                                   <a class="dropdown-item bg-dark text-light" href="/manage/feedbacks">Feedbacks</a>
@@ -59,7 +59,7 @@
                         <li class="nav-item px-2">
                             <form action="/user/logout" method="post">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-                                <button class="btn btn-dark text-info logout"><strong>logout</strong></button>
+                                <button class="btn logout btn-block btn-outline-info"><strong>logout</strong></button>
                             </form>
                         </li>
                     <% } %>
