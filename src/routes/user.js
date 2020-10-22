@@ -175,12 +175,15 @@ const upload = multer({
 
 router.post('/profile',isAuth, upload, async (req, res) => {
 
+
+
     const first_name = req.body.first_name;
     const last_name = req.body.last_name;
     const gender = req.body.gender;
     const job_type = req.body.job_type;
     const job_title = req.body.job_title;
     const ph_no = req.body.ph_no;
+
     
     if(!first_name || !last_name || !gender || !job_title || !job_type || !ph_no ) {
         req.flash('error', 'Please fill all the inputs')
@@ -223,7 +226,7 @@ router.post('/profile',isAuth, upload, async (req, res) => {
             return res.redirect('back')
         }    
     }
-    
+    req.flash('success', 'Profile updated successfully')
     res.redirect('back')
 })
 
