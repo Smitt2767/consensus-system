@@ -43,6 +43,10 @@ router.post('/signup', async (req, res) => {
         req.flash('error', 'Minimum password length 4 required')
         return res.redirect('/signup')
     }
+    if(!email) {
+        req.flash('error', 'email not found')
+        return res.redirect('/signup')
+    }
 
     try {
         const user = await User.findOne({email})
