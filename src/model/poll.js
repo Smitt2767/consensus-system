@@ -54,6 +54,8 @@ const PollSchema = new mongoose.Schema({
     timestamps : true
 })
 
+
+
 const Poll = mongoose.model('Poll', PollSchema)
 
 module.exports = Poll

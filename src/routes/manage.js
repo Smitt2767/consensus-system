@@ -1,5 +1,5 @@
 const express = require('express')
-
+const moment = require('moment')
 const router = express.Router()
 const User = require('../model/user')
 const Polls = require('../model/poll')
@@ -55,7 +55,8 @@ router.get('/polls', async (req, res) => {
 
     res.render('managePolls', {
         currentRoute : 'manage',
-        polls
+        polls,
+        moment
     })
 })
 

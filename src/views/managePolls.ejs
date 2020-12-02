@@ -84,8 +84,8 @@
                                 </div>
                             </div>
                         </td>
-                        <td><%= poll.startAt.toString().replace('GMT+0530 (India Standard Time)', '') %></td>
-                        <td><%= poll.endAt.toString().replace('GMT+0530 (India Standard Time)', '') %></td>
+                        <td><%= moment(poll.startAt).format('MMM Do YY') %></td>
+                        <td><%= moment(poll.endAt).format('MMM Do YY')  %></td>
                         <td>
                             <form action="/manage/poll/delete/<%= poll._id %>" method="post" onsubmit="return confirm('Do you really want to delete, <%= poll.pollQuestion %>?')">
                                 <input type="hidden" name="_csrf" value="<%= csrfToken %>">

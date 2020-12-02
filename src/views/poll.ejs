@@ -15,9 +15,9 @@
                 </div>
             <% } %>
             <div class="d-flex justify-content-between align-items-center">
-                <script>
-                    document.write('<a href="' + document.referrer + '" class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home" >&#8592; Go Back</a>');
-                </script>
+                
+                <button class="btn btn-outline-info btn mb-3" data-toggle="tooltip" data-placement="right" title="Go back to home" onclick="goBack()" >&#8592; Go Back</button>
+                
                 <% if(isPollStarted && !isPollEnded) { %>
                     <a href="#" class="btn btn-outline-success btn mb-3 text-monospace text-light" data-toggle="tooltip" data-placement="right" title="Time left" id="time"></a>
                 <% } %>
@@ -59,16 +59,33 @@
                     </div>
                 </div>
             </div>
-            <% if(isVoted || !isAllowedUser) { %>
+            <% if(isVoted || isAllowedUser || isPollEnded) { %>
             <div class="jumbotron bg-dark text-light">
                 <div id="chartContainer"></div>
             </div>
             <% } %>
+            <div class="d-flex flex-column justify-content-center">
+                <div class="form-group">
+                    <label for="comment" class="lead text-info">Write Comment</label>
+                    <textarea class="form-control bg-dark border border-info text-light" rows="4" name="comment" id="comment" required placeholder="enter here..."></textarea>
+                </div>
+                <input type="hidden" name="_csrf" id="_csrf" value="<%= csrfToken %>">
+                <input type="hidden" name="username" id="username" value="<%= user.username %>">
+                <button class="btn btn-info px-5 lead align-self-end" id="submit-comment">Submit</button>
+
+            </div>
+            <h2 class="text-info comment p-0 m-0">Comments</h2>
+            <div class="comment-container custom-scrollbar p-0 mt-3">
+                <ul class="comment_box my-3 list-group">
+                    
+                </ul>
+            </div>
         </div>
     </div>
 
 <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
 <script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <script>
     var chartContainer = document.getElementById('chartContainer')
@@ -85,6 +102,9 @@
     const date1 = new Date()
     const date2 = new Date(endAt);
     
+    function goBack() {
+        window.history.back();
+    }
     
     var time = document.getElementById('time') 
 
@@ -156,6 +176,60 @@
         })
        
     }
+    getComments()
+    let btn = document.querySelector('#submit-comment')
+    let comment_box = document.querySelector('.comment_box')
+    
+    btn.addEventListener('click', (e) => {
+        e.preventDefault()
+        let comment = document.querySelector('#comment').value
+        let _csrf = document.querySelector('#_csrf').value
+        if(!comment) {
+            return
+        }
+        postComment(comment, _csrf)
+
+    })
+
+    async function postComment(comment, _csrf) {
+        let data = {
+            comment,
+            _csrf,
+            pollID
+        }
+        const res = await axios.post('/poll_comment', data)
+        document.querySelector('#comment').value = ''
+        if(res.data.status === 'success') {
+            getComments()
+        }
+    }
+    async function getComments() {
+        const res = await axios.get(`/poll_comment/${pollID}`)
+        if(res.data.status === 'success'){
+            res.data.data.comments.forEach(comment => {
+                appendToDom(comment)
+            })
+        }
+    }
+
+    function appendToDom(data) {
+        
+        let liTag = document.createElement('li')
+        let markup = `
+        <div class="card bg-dark border-dark mb-3">
+            <div class="card-body">
+                <h6 class="lead">${data.user.username}</h6>
+                <div class="d-flex justify-content-between">
+                    <span class="text-small text-muted">${data.text}</span>
+                    <span class="text-muted text-monospace d-flex align-items-center"><i class="far fa-clock bg-dark mr-2"></i><span class="text-small">${moment(data.time).format('LT')}</span></span>
+                </div>
+            </div>
+        </div>
+        `
+        liTag.innerHTML = markup
+        comment_box.prepend(liTag)
+    }
+
     
 </script>
 

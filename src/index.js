@@ -1,108 +1,121 @@
-const path = require('path')
+const path = require("path");
 
-const express = require('express')
-const bodyParser = require('body-parser')
-const session = require('express-session')
-const flash = require('connect-flash')
-const MongodbStore = require('connect-mongodb-session')(session)
-require('./db/mongoose.js')
-const User = require('./model/user')
-const ContactUs = require('./model/contactUs')
-const { isAdmin, alreadyAuth, isAuth } = require('./middleware/auth')
-
+const express = require("express");
+const bodyParser = require("body-parser");
+const session = require("express-session");
+const flash = require("connect-flash");
+const MongodbStore = require("connect-mongodb-session")(session);
+require("./db/mongoose.js");
+const User = require("./model/user");
+const ContactUs = require("./model/contactUs");
+const { isAdmin, alreadyAuth, isAuth } = require("./middleware/auth");
+const Emitter = require("events");
 
 // csrf
-const csrf = require('csurf')
+const csrf = require("csurf");
 
-const userRoute = require('./routes/user')
-const pollRoute = require('./routes/poll')
-const manageRoute = require('./routes/manage')
+const userRoute = require("./routes/user");
+const pollRoute = require("./routes/poll");
+const manageRoute = require("./routes/manage");
 
-const app = express()
-const viewsDir = path.join(__dirname, 'views')
+const app = express();
+const viewsDir = path.join(__dirname, "views");
 // csrf
-const csrfProtection = csrf()
-const publicDir = path.join(__dirname, 'public')
-app.use(express.static(publicDir))
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({ extended : true }))
+const csrfProtection = csrf();
+const publicDir = path.join(__dirname, "public");
+app.use(express.static(publicDir));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(flash())
-app.use(session({
-    secret : process.env.SESSION_SECRET,
-    resave : false,
-    store : new MongodbStore({
-        uri : process.env.MONGODB_URL,
-        collection : 'sessions',
+// Emitter
+const eventEmitter = new Emitter();
+app.set("eventEmitter", eventEmitter);
+
+app.use(flash());
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    store: new MongodbStore({
+      uri: process.env.MONGODB_URL,
+      collection: "sessions",
     }),
-    saveUninitialized : false
-}))
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 1000 * 60 * 60 * 24,
+    },
+  })
+);
 // csrf
-app.use(csrfProtection)
+app.use(csrfProtection);
 
 app.use(async (req, res, next) => {
-    res.locals.isAuthenticated = req.session.isLoggedin
-    res.locals.error = req.flash('error')
-    res.locals.success = req.flash('success')
-    res.locals.modal_error = req.flash('modal_error')
-    res.locals.modal_success = req.flash('modal_success')
-    // csrf
-    res.locals.csrfToken = req.csrfToken()
-    // res.locals.csrfToken = 0
-    if(req.session.userId){
-        const user = await User.findById(req.session.userId).select('-password -createdAt -updatedAt -__v')
-        if(user) {
-            req.user = user
-            res.locals.user = user
-        }
+  res.locals.isAuthenticated = req.session.isLoggedin;
+  res.locals.error = req.flash("error");
+  res.locals.success = req.flash("success");
+  res.locals.modal_error = req.flash("modal_error");
+  res.locals.modal_success = req.flash("modal_success");
+  // csrf
+  res.locals.csrfToken = req.csrfToken();
+  // res.locals.csrfToken = 0
+  if (req.session.userId) {
+    const user = await User.findById(req.session.userId).select(
+      "-password -createdAt -updatedAt -__v"
+    );
+    if (user) {
+      req.user = user;
+      res.locals.user = user;
     }
-    next()
-})
+  }
+  next();
+});
 
-app.set('views', viewsDir)
-app.set('view engine', 'ejs')
+app.set("views", viewsDir);
+app.set("view engine", "ejs");
 
-app.use('/user',userRoute)
-app.use(pollRoute)
-app.use('/manage', isAuth, isAdmin, manageRoute)
+app.use("/user", userRoute);
+app.use(pollRoute);
+app.use("/manage", isAuth, isAdmin, manageRoute);
 
-app.get('', alreadyAuth, (req, res) => {
-    res.render('index', {
-        currentRoute : 'index'
-    })
-})
+app.get("", alreadyAuth, (req, res) => {
+  res.render("index", {
+    currentRoute: "index",
+  });
+});
 
-app.get('/signup', alreadyAuth, (req, res) => {
-    res.render('signup', {
-        currentRoute : 'signup'
-    })
-})
+app.get("/signup", alreadyAuth, (req, res) => {
+  res.render("signup", {
+    currentRoute: "signup",
+  });
+});
 
-app.post('/contactUs', async (req, res) => {
+app.post("/contactUs", async (req, res) => {
+  const username = req.body.username;
+  const email = req.body.email;
+  const message = req.body.message;
 
-    const username = req.body.username;
-    const email = req.body.email;
-    const message = req.body.message;
+  if (!username || !email || !message) {
+    req.flash("modal_error", "please specifies all the field");
+    return res.redirect("back");
+  }
 
-    if(!username || !email || !message) {
-        req.flash('modal_error', 'please specifies all the field')
-        return res.redirect('back')
-    }
+  const user = await User.findOne({ email });
+  if (!user) {
+    req.flash("modal_error", "Invalid user");
+    return res.redirect("back");
+  }
+  const contact = new ContactUs({
+    username,
+    email,
+    message,
+  });
+  await contact.save();
 
-    const user = await User.findOne({email})
-    if(!user){
-        req.flash('modal_error', 'Invalid user')
-        return res.redirect('back')
-    }
-    const contact = new ContactUs({
-        username,
-        email,
-        message
-    })
-    await contact.save()
+  req.flash("modal_success", "Your feedback is conserned");
+  res.redirect("back");
+});
 
-    req.flash('modal_success', 'Your feedback is conserned')
-    res.redirect('back')
-})
-
-app.listen(process.env.PORT, console.log("Server is running on port ", process.env.PORT))
+app.listen(
+  process.env.PORT,
+  console.log("Server is running on port ", process.env.PORT)
+);
