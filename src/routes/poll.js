@@ -202,6 +202,7 @@ router.get("/get_poll/:id", isAuth, async (req, res) => {
   });
 });
 
+// post comments
 router.post("/poll_comment", isAuth, async (req, res) => {
   const text = req.body.comment;
   const poll = req.body.pollID;
@@ -222,6 +223,8 @@ router.post("/poll_comment", isAuth, async (req, res) => {
     });
   } catch (err) {}
 });
+
+// get comments using poll id
 router.get("/poll_comment/:id", isAuth, async (req, res) => {
   try {
     const comments = await Comment.find({ poll: req.params.id }).sort(
@@ -408,7 +411,7 @@ router.post("/vote/:id", isAuth, async (req, res) => {
   req.flash("success", "Thankyou for your vote");
   res.redirect("back");
 });
-
+// delete poll by its id
 router.post("/delete_poll/:id", async (req, res) => {
   const id = req.params.id;
 

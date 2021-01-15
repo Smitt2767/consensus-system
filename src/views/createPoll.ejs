@@ -106,7 +106,6 @@
             function(e) {
                 e.preventDefault()
                 if(y > 0) {
-                console.log("x : ", y)
                 let x = document.createElement("INPUT")
                 x.setAttribute("type" , "text")
                 x.setAttribute("name", "answers")
@@ -123,7 +122,6 @@
                 e.preventDefault()
                 if(y > 1) {
                 y = y - 1
-                console.log("y : ", y)
                 let id = 'Option-'+ y
                 let x = document.getElementById(id)
                 x.remove()
